@@ -1,12 +1,18 @@
-# db.py
-
 import motor.motor_asyncio
+from dotenv import load_dotenv
+import os
 
-MONGO_DETAILS = "mongodb://localhost:27017"
+# Load environment variables from .env
+load_dotenv()
 
+# Get Mongo URI from .env
+MONGO_DETAILS = os.getenv("MONGO_URL")
+
+# Connect to MongoDB Atlas
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 
-database = client.smart_hostel
+# Connect to the specific database
+database = client.HostelDB
 
 students_collection = database.get_collection("students")
 outpasses_collection = database.get_collection("outpasses")

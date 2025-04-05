@@ -1,18 +1,25 @@
 import asyncio
 from uuid import uuid4
-from database import students_collection
-from database import rooms_collection
-from database import outpasses_collection
-from database import mess_menu_collection
-from database import mess_feedback_collection
-from database import complaints_collection
-from database import alerts_collection
+from bson import ObjectId
+
+from database import (
+    students_collection,
+    rooms_collection,
+    outpasses_collection,
+    mess_menu_collection,
+    mess_feedback_collection,
+    complaints_collection,
+    alerts_collection,
+)
+
 from models.student_model import Student
 from models.room_booking import RoomBooking
 from models.outpass import Outpass
 from models.mess_feedback import MessFeedback
 from models.complaint import Complaint
 from models.alert import Alert
+
+
 
 sample_students = [
     {
@@ -62,17 +69,23 @@ sample_students = [
     },
 ]
 
-# async def getStudentsData():
-#     students = []
-#     async for student in students_collection.find():
-#         students.append(Student(**student))
-#     return students
+async def getStudentsData():
+    students = []
+    async for student in students_collection.find():
+        students.append(Student(**student))
+    return students
 
-
+# Add a student
 async def addStudentData(student: Student):
-    student_data = student.model_dump()
-    await students_collection.insert_one(student_data)
-    return student
+    student_data = student.model_dump(by_alias=True, exclude_unset=True)
+    
+    # Use custom UUID as _id
+    student_data["_id"] = uuid4().hex
+    result = await students_collection.insert_one(student_data)
+
+    # Return the inserted student
+    student_data["_id"] = str(student_data["_id"])
+    return Student(**student_data)
 
 
 async def book_room(booking: RoomBooking):

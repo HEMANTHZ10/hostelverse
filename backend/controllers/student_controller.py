@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
 from models.student_model import Student
-from services.student_service import getStudentsData,addStudentData
+from services.student_service import addStudentData
 
 router = APIRouter()
 
