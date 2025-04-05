@@ -2,6 +2,7 @@ import asyncio
 from uuid import uuid4
 from database import students_collection
 from models.student_model import Student
+from bson import ObjectId
 
 sample_students = [
     {
@@ -51,16 +52,25 @@ sample_students = [
     },
 ]
 
+# Fetch all students
 async def getStudentsData():
     students = []
     async for student in students_collection.find():
+        student["_id"] = str(student["_id"])  # Convert ObjectId to string
         students.append(Student(**student))
     return students
 
+# Add a student
 async def addStudentData(student: Student):
-    student_data = student.model_dump()
-    await students_collection.insert_one(student_data)
-    return student
+    student_data = student.model_dump(by_alias=True, exclude_unset=True)
+    
+    # Use custom UUID as _id
+    student_data["_id"] = uuid4().hex
+    result = await students_collection.insert_one(student_data)
+
+    # Return the inserted student
+    student_data["_id"] = str(student_data["_id"])
+    return Student(**student_data)
 
 
 
