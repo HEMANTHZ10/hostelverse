@@ -1,91 +1,113 @@
 import React from 'react';
-import { Users, Building2, Calendar, MessageSquare } from 'lucide-react';
+import { Users, Building2, Calendar, MessageSquare, CreditCard, AlertCircle, FileText, Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 function WardenDashboard() {
-  // Mock data - Replace with actual API data
-  const stats = {
-    totalStudents: 150,
-    totalRooms: 50,
-    pendingComplaints: 5,
-    upcomingEvents: 3
-  };
-
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Warden Dashboard</h1>
-      
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-full">
-              <Users className="w-6 h-6 text-blue-600" />
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Welcome, Warden</h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Students Card */}
+          <Link to="/warden/attendance" className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="flex items-center mb-4">
+              <Users className="w-6 h-6 text-blue-600 mr-3" />
+              <h3 className="text-lg font-semibold">Students</h3>
             </div>
-            <div>
-              <p className="text-gray-500 text-sm">Total Students</p>
-              <p className="text-2xl font-bold">{stats.totalStudents}</p>
+            <p className="text-3xl font-bold text-gray-900">150</p>
+            <p className="text-sm text-gray-600 mt-2">Total students</p>
+          </Link>
+
+          {/* Fee Defaulters Card */}
+          <Link to="/warden/fee-defaulters" className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="flex items-center mb-4">
+              <CreditCard className="w-6 h-6 text-red-600 mr-3" />
+              <h3 className="text-lg font-semibold">Fee Defaulters</h3>
             </div>
-          </div>
+            <p className="text-3xl font-bold text-gray-900">8</p>
+            <div className="flex items-center mt-2 text-sm text-red-600">
+              <AlertCircle className="w-4 h-4 mr-1" />
+              <span>Action Required</span>
+            </div>
+          </Link>
+
+          {/* Complaints Card */}
+          <Link to="/warden/complaints" className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="flex items-center mb-4">
+              <MessageSquare className="w-6 h-6 text-purple-600 mr-3" />
+              <h3 className="text-lg font-semibold">Complaints</h3>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">5</p>
+            <p className="text-sm text-gray-600 mt-2">Pending resolution</p>
+          </Link>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-green-50 rounded-full">
-              <Building2 className="w-6 h-6 text-green-600" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Recent Fee Defaulters */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">Recent Fee Defaulters</h2>
+            <div className="space-y-4">
+              <div className="border rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold">John Smith</h3>
+                    <p className="text-sm text-gray-600">Room A-101</p>
+                    <p className="text-sm font-medium text-red-600">Due: ₹15,000</p>
+                  </div>
+                  <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-sm">30 days overdue</span>
+                </div>
+              </div>
+              <div className="border rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold">Emma Wilson</h3>
+                    <p className="text-sm text-gray-600">Room B-205</p>
+                    <p className="text-sm font-medium text-red-600">Due: ₹12,000</p>
+                  </div>
+                  <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-sm">15 days overdue</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-gray-500 text-sm">Total Rooms</p>
-              <p className="text-2xl font-bold">{stats.totalRooms}</p>
-            </div>
+            <Link 
+              to="/warden/fee-defaulters"
+              className="mt-4 inline-block text-blue-600 hover:text-blue-700 text-sm font-medium"
+            >
+              View all defaulters
+            </Link>
           </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-yellow-50 rounded-full">
-              <MessageSquare className="w-6 h-6 text-yellow-600" />
+          {/* Recent Complaints */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">Recent Complaints</h2>
+            <div className="space-y-4">
+              <div className="border rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold">Plumbing Issue</h3>
+                    <p className="text-sm text-gray-600">Room C-303</p>
+                    <p className="text-sm text-gray-600">Reported: Feb 20, 2024</p>
+                  </div>
+                  <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">Pending</span>
+                </div>
+              </div>
+              <div className="border rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold">Electrical Issue</h3>
+                    <p className="text-sm text-gray-600">Room D-404</p>
+                    <p className="text-sm text-gray-600">Reported: Feb 19, 2024</p>
+                  </div>
+                  <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-sm">In Progress</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-gray-500 text-sm">Pending Complaints</p>
-              <p className="text-2xl font-bold">{stats.pendingComplaints}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-purple-50 rounded-full">
-              <Calendar className="w-6 h-6 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-gray-500 text-sm">Upcoming Events</p>
-              <p className="text-2xl font-bold">{stats.upcomingEvents}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Activities */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">Recent Activities</h2>
-        <div className="space-y-4">
-          <div className="flex items-center gap-4 p-4 border-b">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <Users className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="font-medium">New student registration</p>
-              <p className="text-sm text-gray-500">2 hours ago</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 p-4 border-b">
-            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="font-medium">Room allocation completed</p>
-              <p className="text-sm text-gray-500">5 hours ago</p>
-            </div>
+            <Link 
+              to="/warden/complaints"
+              className="mt-4 inline-block text-blue-600 hover:text-blue-700 text-sm font-medium"
+            >
+              View all complaints
+            </Link>
           </div>
         </div>
       </div>

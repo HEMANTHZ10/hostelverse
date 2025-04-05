@@ -6,13 +6,13 @@ function FeePayment() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Fee Payment</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center mb-4">
             <DollarSign className="w-6 h-6 text-green-600 mr-3" />
             <h3 className="text-lg font-semibold">Total Due</h3>
           </div>
-          <p className="text-3xl font-bold text-gray-900">$1,200</p>
+          <p className="text-3xl font-bold text-gray-900">₹1,00,000</p>
           <p className="text-gray-600">Current semester</p>
         </div>
 
@@ -21,7 +21,7 @@ function FeePayment() {
             <Receipt className="w-6 h-6 text-blue-600 mr-3" />
             <h3 className="text-lg font-semibold">Last Payment</h3>
           </div>
-          <p className="text-3xl font-bold text-gray-900">$800</p>
+          <p className="text-3xl font-bold text-gray-900">₹15,000</p>
           <p className="text-gray-600">Feb 15, 2024</p>
         </div>
 
@@ -32,15 +32,6 @@ function FeePayment() {
           </div>
           <p className="text-3xl font-bold text-gray-900">Mar 15</p>
           <p className="text-gray-600">10 days remaining</p>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-          <div className="flex items-center mb-4">
-            <CreditCard className="w-6 h-6 text-purple-600 mr-3" />
-            <h3 className="text-lg font-semibold">Payment Methods</h3>
-          </div>
-          <p className="text-3xl font-bold text-gray-900">3</p>
-          <p className="text-gray-600">Saved cards</p>
         </div>
       </div>
 
@@ -133,7 +124,7 @@ function FeePayment() {
               <div key={index} className="border rounded-lg p-4">
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <h3 className="font-semibold">${payment.amount}</h3>
+                    <h3 className="font-semibold">₹{payment.amount}</h3>
                     <p className="text-sm text-gray-600">{payment.method}</p>
                   </div>
                   <span className={`font-semibold ${payment.statusColor}`}>

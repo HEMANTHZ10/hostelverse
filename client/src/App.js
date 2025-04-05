@@ -6,7 +6,6 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import RoomBooking from './pages/RoomBooking';
-import Attendance from './pages/Attendance';
 import Complaints from './pages/Complaints';
 import FeePayment from './pages/FeePayment';
 import MessMenu from './pages/MessMenu';
@@ -23,7 +22,6 @@ import FeeDefaulters from './pages/warden/FeeDefaulters';
 import ScanLeavePass from './pages/watchman/ScanLeavePass';
 import VerificationHistory from './pages/watchman/VerificationHistory';
 import WatchmanDashboard from './pages/watchman/WatchmanDashboard';
-import StudentManagement from './pages/warden/StudentManagement';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -80,15 +78,16 @@ function App() {
         {/* Student Routes */}
         <Route path="/student/*" element={
           <ProtectedRoute allowedRoles={['student']}>
-            <Routes>
-              <Route path="dashboard" element={<StudentDashboard />} />
-              <Route path="room-booking" element={<RoomBooking />} />
-              <Route path="attendance" element={<Attendance />} />
-              <Route path="complaints" element={<Complaints />} />
-              <Route path="fee-payment" element={<FeePayment />} />
-              <Route path="mess-menu" element={<MessMenu />} />
-              <Route path="leave-request" element={<LeaveRequest />} />
-            </Routes>
+            <DashboardLayout>
+              <Routes>
+                <Route path="dashboard" element={<StudentDashboard />} />
+                <Route path="room-booking" element={<RoomBooking />} />
+                <Route path="complaints" element={<Complaints />} />
+                <Route path="fee-payment" element={<FeePayment />} />
+                <Route path="mess-menu" element={<MessMenu />} />
+                <Route path="leave-request" element={<LeaveRequest />} />
+              </Routes>
+            </DashboardLayout>
           </ProtectedRoute>
         } />
 
@@ -98,7 +97,6 @@ function App() {
             <DashboardLayout>
               <Routes>
                 <Route path="dashboard" element={<WardenDashboard />} />
-                <Route path="students" element={<StudentManagement />} />
                 <Route path="attendance" element={<AttendanceManagement />} />
                 <Route path="complaints" element={<ComplaintsManagement />} />
                 <Route path="mess" element={<MessManagement />} />
@@ -112,11 +110,13 @@ function App() {
         {/* Watchman Routes */}
         <Route path="/watchman/*" element={
           <ProtectedRoute allowedRoles={['watchman']}>
-            <Routes>
-              <Route path="dashboard" element={<WatchmanDashboard />} />
-              <Route path="scan" element={<ScanLeavePass />} />
-              <Route path="history" element={<VerificationHistory />} />
-            </Routes>
+            <DashboardLayout>
+              <Routes>
+                <Route path="dashboard" element={<WatchmanDashboard />} />
+                <Route path="scan" element={<ScanLeavePass />} />
+                <Route path="history" element={<VerificationHistory />} />
+              </Routes>
+            </DashboardLayout>
           </ProtectedRoute>
         } />
 

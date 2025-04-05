@@ -18,7 +18,6 @@ function DashboardLayout({ children }) {
     student: [
       { icon: LayoutDashboard, title: "Dashboard", path: "/student/dashboard" },
       { icon: Building2, title: "Room Booking", path: "/student/room-booking" },
-      { icon: Calendar, title: "Attendance", path: "/student/attendance" },
       { icon: MessageSquare, title: "Complaints", path: "/student/complaints" },
       { icon: CreditCard, title: "Fee Payment", path: "/student/fee-payment" },
       { icon: Utensils, title: "Mess Menu", path: "/student/mess-menu" },
@@ -26,7 +25,6 @@ function DashboardLayout({ children }) {
     ],
     warden: [
       { icon: LayoutDashboard, title: "Dashboard", path: "/warden/dashboard" },
-      { icon: Users, title: "Student Management", path: "/warden/students" },
       { icon: Calendar, title: "Attendance Management", path: "/warden/attendance" },
       { icon: MessageSquare, title: "Complaints Management", path: "/warden/complaints" },
       { icon: Utensils, title: "Mess Management", path: "/warden/mess" },
