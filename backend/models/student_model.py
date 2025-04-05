@@ -2,13 +2,16 @@ from pydantic import BaseModel
 from typing import Optional, List
 
 class Student(BaseModel):
-    id: Optional[int] = None
+    Id: str
     name: str
     age: int
     email: str
-    phone_number: str
+    password: str
+    parent_mobile_no: str
+    student_mobile_no: str
     address: str
     branch:str
+    roll_no:Optional[str] = None
     
     class Config:
         from_attributes = True
