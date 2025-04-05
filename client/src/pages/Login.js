@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { LogIn, AlertCircle } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { LogIn, AlertCircle, CheckCircle, UserPlus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { SAMPLE_USERS } from '../context/AuthContext';
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState(location.state?.message || '');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e) => {
@@ -19,7 +21,6 @@ function Login() {
     setError('');
     setIsLoading(true);
 
-    // Simulate API call delay
     setTimeout(() => {
       const user = SAMPLE_USERS.find(
         user => user.email === formData.email && user.password === formData.password
@@ -31,7 +32,21 @@ function Login() {
           email: user.email,
           role: user.role
         });
-        navigate('/dashboard');
+        
+        // Redirect based on role
+        switch(user.role) {
+          case 'student':
+            navigate('/student/dashboard');
+            break;
+          case 'warden':
+            navigate('/warden/dashboard');
+            break;
+          case 'watchman':
+            navigate('/watchman/dashboard');
+            break;
+          default:
+            navigate('/');
+        }
       } else {
         setError('Invalid credentials. Please try the sample logins shown below.');
       }
@@ -44,6 +59,13 @@ function Login() {
       <div className="bg-white rounded-xl p-8 max-w-md w-full shadow-lg">
         <h2 className="text-2xl font-bold mb-6">Login to Your Account</h2>
         
+        {successMessage && (
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-600">
+            <CheckCircle className="w-5 h-5" />
+            <span>{successMessage}</span>
+          </div>
+        )}
+
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-600">
             <AlertCircle className="w-5 h-5" />
@@ -52,22 +74,36 @@ function Login() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input 
-            type="email" 
-            value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
-            placeholder="Email Address" 
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" 
-            required
-          />
-          <input 
-            type="password" 
-            value={formData.password}
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
-            placeholder="Password" 
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" 
-            required
-          />
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              Email Address
+            </label>
+            <input 
+              id="email"
+              type="email" 
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              placeholder="Enter your email" 
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" 
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <input 
+              id="password"
+              type="password" 
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              placeholder="Enter your password" 
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" 
+              required
+            />
+          </div>
+
           <button 
             type="submit"
             disabled={isLoading}
@@ -83,10 +119,25 @@ function Login() {
                 Logging in...
               </span>
             ) : (
-              'Login'
+              <span className="inline-flex items-center">
+                <LogIn className="w-5 h-5 mr-2" />
+                Login
+              </span>
             )}
           </button>
         </form>
+
+        {/* Registration Link Section */}
+        <div className="mt-6 text-center">
+          <p className="text-gray-600">Don't have an account?</p>
+          <Link 
+            to="/register" 
+            className="mt-2 w-full inline-flex items-center justify-center px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+          >
+            <UserPlus className="w-5 h-5 mr-2" />
+            Create New Account
+          </Link>
+        </div>
 
         {/* Sample Login Credentials */}
         <div className="mt-8 p-4 bg-gray-50 rounded-lg">

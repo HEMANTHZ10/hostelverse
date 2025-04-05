@@ -11,30 +11,34 @@ export const SAMPLE_USERS = [
     role: 'student'
   },
   { 
-    email: 'admin@hostel.com', 
-    password: 'admin123', 
-    name: 'Admin User',
-    role: 'admin'
-  },
-  { 
     email: 'warden@hostel.com', 
     password: 'warden123', 
-    name: 'Hostel Warden',
+    name: 'David Warden',
     role: 'warden'
+  },
+  { 
+    email: 'watchman@hostel.com', 
+    password: 'watchman123', 
+    name: 'Tom Guard',
+    role: 'watchman'
   }
 ];
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    // Check if user data exists in localStorage
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
   const login = (userData) => {
     setUser(userData);
-    // You could also store in localStorage here if you want persistence
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
-    // Clear localStorage if you're using it
+    localStorage.removeItem('user');
   };
 
   return (
@@ -44,4 +48,10 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext); 
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}; 

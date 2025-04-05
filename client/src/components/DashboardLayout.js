@@ -3,7 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Building2, Calendar, ClipboardCheck, CreditCard, 
   MessageSquare, Utensils, Users, LogOut, 
-  LayoutDashboard
+  LayoutDashboard, FileText, Bell, QrCode,
+  Clock, Settings
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -12,15 +13,35 @@ function DashboardLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const menuItems = [
-    { icon: LayoutDashboard, title: "Dashboard", path: "/dashboard" },
-    { icon: Building2, title: "Room Booking", path: "/dashboard/room-booking" },
-    { icon: ClipboardCheck, title: "Attendance", path: "/dashboard/attendance" },
-    { icon: MessageSquare, title: "Complaints", path: "/dashboard/complaints" },
-    { icon: CreditCard, title: "Fee Payment", path: "/dashboard/fee-payment" },
-    { icon: Utensils, title: "Mess Menu", path: "/dashboard/mess-menu" },
-    { icon: Users, title: "Tracking", path: "/dashboard/tracking" },
-  ];
+  // Define role-specific menu items
+  const roleMenuItems = {
+    student: [
+      { icon: LayoutDashboard, title: "Dashboard", path: "/student/dashboard" },
+      { icon: Building2, title: "Room Booking", path: "/student/room-booking" },
+      { icon: Calendar, title: "Attendance", path: "/student/attendance" },
+      { icon: MessageSquare, title: "Complaints", path: "/student/complaints" },
+      { icon: CreditCard, title: "Fee Payment", path: "/student/fee-payment" },
+      { icon: Utensils, title: "Mess Menu", path: "/student/mess-menu" },
+      { icon: FileText, title: "Leave Request", path: "/student/leave-request" },
+    ],
+    warden: [
+      { icon: LayoutDashboard, title: "Dashboard", path: "/warden/dashboard" },
+      { icon: Users, title: "Student Management", path: "/warden/students" },
+      { icon: Calendar, title: "Attendance Management", path: "/warden/attendance" },
+      { icon: MessageSquare, title: "Complaints Management", path: "/warden/complaints" },
+      { icon: Utensils, title: "Mess Management", path: "/warden/mess" },
+      { icon: FileText, title: "Leave Approvals", path: "/warden/leave-approvals" },
+      { icon: CreditCard, title: "Fee Defaulters", path: "/warden/fee-defaulters" },
+    ],
+    watchman: [
+      { icon: LayoutDashboard, title: "Dashboard", path: "/watchman/dashboard" },
+      { icon: QrCode, title: "Scan Leave Pass", path: "/watchman/scan" },
+      { icon: Clock, title: "Verification History", path: "/watchman/history" },
+    ]
+  };
+
+  // Get menu items based on user role
+  const menuItems = roleMenuItems[user?.role] || [];
 
   const handleLogout = () => {
     logout();
@@ -34,7 +55,7 @@ function DashboardLayout({ children }) {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="p-4 border-b">
-            <Link to="/dashboard" className="flex items-center">
+            <Link to={`/${user?.role}/dashboard`} className="flex items-center">
               <Building2 className="w-8 h-8 text-blue-600" />
               <span className="ml-2 text-xl font-semibold">HostelVerse</span>
             </Link>
@@ -56,7 +77,7 @@ function DashboardLayout({ children }) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4">
+          <nav className="flex-1 p-4 overflow-y-auto">
             <ul className="space-y-1">
               {menuItems.map((item) => (
                 <li key={item.path}>
