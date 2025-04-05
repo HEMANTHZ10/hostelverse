@@ -95,15 +95,17 @@ function App() {
         {/* Warden Routes */}
         <Route path="/warden/*" element={
           <ProtectedRoute allowedRoles={['warden']}>
-            <Routes>
-              <Route path="dashboard" element={<WardenDashboard />} />
-              <Route path="students" element={<StudentManagement />} />
-              <Route path="attendance" element={<AttendanceManagement />} />
-              <Route path="complaints" element={<ComplaintsManagement />} />
-              <Route path="mess" element={<MessManagement />} />
-              <Route path="leave-approvals" element={<LeaveApprovals />} />
-              <Route path="fee-defaulters" element={<FeeDefaulters />} />
-            </Routes>
+            <DashboardLayout>
+              <Routes>
+                <Route path="dashboard" element={<WardenDashboard />} />
+                <Route path="students" element={<StudentManagement />} />
+                <Route path="attendance" element={<AttendanceManagement />} />
+                <Route path="complaints" element={<ComplaintsManagement />} />
+                <Route path="mess" element={<MessManagement />} />
+                <Route path="leave-approvals" element={<LeaveApprovals />} />
+                <Route path="fee-defaulters" element={<FeeDefaulters />} />
+              </Routes>
+            </DashboardLayout>
           </ProtectedRoute>
         } />
 
