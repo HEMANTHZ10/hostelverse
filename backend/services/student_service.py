@@ -51,11 +51,12 @@ sample_students = [
     },
 ]
 
-async def getStudentsData():
-    students = []
-    async for student in students_collection.find():
-        students.append(Student(**student))
-    return students
+# async def getStudentsData():
+#     students = []
+#     async for student in students_collection.find():
+#         students.append(Student(**student))
+#     return students
+
 
 async def addStudentData(student: Student):
     student_data = student.model_dump()
@@ -63,4 +64,64 @@ async def addStudentData(student: Student):
     return student
 
 
+async def book_room(booking: RoomBooking):
+    booking_data = booking.model_dump()
+    
+    # Generate a mock room ID (e.g., based on branch and persons)
+    booking_data["room_id"] = f"{booking.branch[:3].upper()}-R{booking.no_of_persons}-{ObjectId()}"
+    
+    await room_bookings_collection.insert_one(booking_data)
+    return {
+        "message": "Room booked successfully",
+        "room_id": booking_data["room_id"],
+        "details": booking_data
+    }
 
+
+async def request_outpass(outpass: Outpass):
+    outpass_data = outpass.model_dump()
+
+    # Basic validation
+    if outpass.pass_type == "Late Pass":
+        duration = (outpass.to_date - outpass.from_date).days
+        if duration > 1:
+            return {"error": "Late Pass can only be requested for 1 day"}
+
+    await outpasses_collection.insert_one(outpass_data)
+    return {
+        "message": f"{outpass.pass_type} requested successfully",
+        "details": outpass_data
+    }
+
+
+
+
+async def submit_mess_feedback(feedback: MessFeedback):
+    feedback_data = feedback.model_dump()
+    await mess_feedback_collection.insert_one(feedback_data)
+    return {
+        "message": f"Feedback submitted for {feedback.day} {feedback.meal_type}",
+        "feedback": feedback_data
+    }
+
+
+async def submit_complaint(complaint: Complaint):
+    complaint_data = complaint.model_dump()
+    await complaints_collection.insert_one(complaint_data)
+    return {
+        "message": "Complaint submitted successfully",
+        "details": complaint_data
+    }
+
+
+async def send_alert(alert: Alert):
+    alert_data = alert.model_dump()
+    await alerts_collection.insert_one(alert_data)
+
+    # You can trigger a notification to hostel incharge here
+    # (e.g., send email/SMS using an external service like Twilio/SMTP)
+
+    return {
+        "message": "Alert sent successfully to hostel incharge",
+        "alert": alert_data
+    }
