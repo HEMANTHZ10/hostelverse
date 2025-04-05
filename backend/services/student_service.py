@@ -1,7 +1,18 @@
 import asyncio
 from uuid import uuid4
 from database import students_collection
+from database import rooms_collection
+from database import outpasses_collection
+from database import mess_menu_collection
+from database import mess_feedback_collection
+from database import complaints_collection
+from database import alerts_collection
 from models.student_model import Student
+from models.room_booking import RoomBooking
+from models.outpass import Outpass
+from models.mess_feedback import MessFeedback
+from models.complaint import Complaint
+from models.alert import Alert
 
 sample_students = [
     {
@@ -70,7 +81,7 @@ async def book_room(booking: RoomBooking):
     # Generate a mock room ID (e.g., based on branch and persons)
     booking_data["room_id"] = f"{booking.branch[:3].upper()}-R{booking.no_of_persons}-{ObjectId()}"
     
-    await room_bookings_collection.insert_one(booking_data)
+    await rooms_collection.insert_one(booking_data)
     return {
         "message": "Room booked successfully",
         "room_id": booking_data["room_id"],
