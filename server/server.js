@@ -15,6 +15,7 @@ app.use(express.json());
 require('dotenv').config();
 
 // MongoDB Connection
+<<<<<<< HEAD
 const connectDB = async () => {
     try {
         console.log('Attempting to connect to MongoDB...');
@@ -50,6 +51,17 @@ connectDB().then(() => {
 }).catch(err => {
     console.error('Failed to start server:', err);
     process.exit(1);
+=======
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => {
+    console.log('MongoDB connected successfully');
+})
+.catch((err) => {
+    console.log('MongoDB connection error:', err.message);
+>>>>>>> 91051d0967f16227f1a5c8a2084b4de3f4728deb
 });
 
 // Registration Route
@@ -344,3 +356,19 @@ app.delete('/api/complaints/:id', async (req, res) => {
         res.status(500).json({ message: 'Error deleting complaint', error: error.message });
     }
 });
+<<<<<<< HEAD
+=======
+
+// Basic route
+app.get('/', (req, res) => {
+    res.send('Hostel Management API is running');
+});
+
+// Define port
+const PORT = process.env.PORT || 5001;
+
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+>>>>>>> 91051d0967f16227f1a5c8a2084b4de3f4728deb
