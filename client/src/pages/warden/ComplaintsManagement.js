@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MessageSquare, Search, Filter, CheckCircle2, XCircle, Clock, MoreVertical, Eye, RefreshCw, X } from 'lucide-react';
 
 function ComplaintsManagement() {
@@ -10,9 +10,57 @@ function ComplaintsManagement() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [newStatus, setNewStatus] = useState('');
 
-  const [complaints, setComplaints] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [apiError, setApiError] = useState('');
+  // Mock data - Replace with actual API data
+  const [complaints, setComplaints] = useState([
+    {
+      id: 1,
+      studentName: 'John Doe',
+      room: 'A-101',
+      title: 'Water Leakage in Bathroom',
+      description: 'There is a continuous water leakage in the bathroom of room A-101. It has been causing inconvenience for the past 2 days.',
+      date: '2024-04-05',
+      status: 'pending',
+      priority: 'high',
+      contactNo: '9876543210',
+      email: 'john.doe@example.com'
+    },
+    {
+      id: 2,
+      studentName: 'Jane Smith',
+      room: 'B-203',
+      title: 'WiFi Connectivity Issues',
+      description: 'The WiFi connection in my room is very weak. Unable to attend online classes properly.',
+      date: '2024-04-04',
+      status: 'in-progress',
+      priority: 'medium',
+      contactNo: '9876543211',
+      email: 'jane.smith@example.com'
+    },
+    {
+      id: 3,
+      studentName: 'Mike Johnson',
+      room: 'C-305',
+      title: 'Broken Window',
+      description: 'The window in my room is broken and needs immediate repair as it is causing security concerns.',
+      date: '2024-04-03',
+      status: 'resolved',
+      priority: 'high',
+      contactNo: '9876543212',
+      email: 'mike.johnson@example.com'
+    },
+    {
+      id: 4,
+      studentName: 'Sarah Williams',
+      room: 'D-102',
+      title: 'Room Cleaning Request',
+      description: 'Requesting a thorough cleaning of my room as it hasn\'t been cleaned properly for a week.',
+      date: '2024-04-02',
+      status: 'pending',
+      priority: 'low',
+      contactNo: '9876543213',
+      email: 'sarah.williams@example.com'
+    }
+  ]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -41,44 +89,7 @@ function ComplaintsManagement() {
     }
   };
 
-  // Fetch complaints from API
-  const fetchComplaints = async () => {
-    try {
-      setIsLoading(true);
-      setApiError('');
-
-      const url = new URL('http://localhost:5001/api/complaints');
-      
-      // Add query parameters for filtering
-      if (selectedFilter !== 'all') {
-        url.searchParams.append('status', selectedFilter);
-      }
-      if (searchTerm) {
-        url.searchParams.append('search', searchTerm);
-      }
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to fetch complaints');
-      }
-
-      setComplaints(data);
-    } catch (error) {
-      console.error('Error fetching complaints:', error);
-      setApiError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Fetch complaints on mount and when filters change
-  useEffect(() => {
-    fetchComplaints();
-  }, [selectedFilter, searchTerm]);
-
-  const handleActionClick = async (complaint, action) => {
+  const handleActionClick = (complaint, action) => {
     setSelectedComplaint(complaint);
     setActiveDropdown(null);
     
@@ -90,59 +101,21 @@ function ComplaintsManagement() {
         setNewStatus(complaint.status);
         setShowStatusModal(true);
         break;
-      case 'delete':
-        if (window.confirm('Are you sure you want to delete this complaint?')) {
-          try {
-            const response = await fetch(`http://localhost:5001/api/complaints/${complaint._id}`, {
-              method: 'DELETE'
-            });
-
-            if (!response.ok) {
-              const data = await response.json();
-              throw new Error(data.message || 'Failed to delete complaint');
-            }
-
-            // Remove complaint from state
-            setComplaints(complaints.filter(c => c._id !== complaint._id));
-          } catch (error) {
-            console.error('Error deleting complaint:', error);
-            alert(error.message);
-          }
-        }
-        break;
       default:
         break;
     }
   };
 
-  const handleStatusUpdate = async (complaint, newStatus) => {
-    try {
-      const response = await fetch(`http://localhost:5001/api/complaints/${complaint._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          status: newStatus,
-          wardenResponse: complaint.wardenResponse
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to update complaint status');
-      }
-
-      // Update complaint in state
-      setComplaints(complaints.map(c => 
-        c._id === complaint._id ? data.complaint : c
+  const handleStatusUpdate = () => {
+    if (selectedComplaint && newStatus) {
+      setComplaints(complaints.map(complaint => 
+        complaint.id === selectedComplaint.id 
+          ? { ...complaint, status: newStatus }
+          : complaint
       ));
-
       setShowStatusModal(false);
-    } catch (error) {
-      console.error('Error updating complaint:', error);
-      alert(error.message);
+      setSelectedComplaint(null);
+      setNewStatus('');
     }
   };
 
@@ -355,4 +328,4 @@ function ComplaintsManagement() {
   );
 }
 
-export default ComplaintsManagement; 
+export default ComplaintsManagement;

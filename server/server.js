@@ -15,24 +15,16 @@ app.use(express.json());
 require('dotenv').config();
 
 // MongoDB Connection
-const connectDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
-        console.log('MongoDB Connected...');
-        
-        // Create indexes
-        await Complaint.createIndexes();
-        console.log('Complaint indexes created...');
-    } catch (err) {
-        console.error('MongoDB connection error:', err.message);
-        process.exit(1);
-    }
-};
-
-connectDB();
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => {
+    console.log('MongoDB connected successfully');
+})
+.catch((err) => {
+    console.log('MongoDB connection error:', err.message);
+});
 
 // Registration Route
 app.post('/api/register', async (req, res) => {
@@ -327,5 +319,15 @@ app.delete('/api/complaints/:id', async (req, res) => {
     }
 });
 
+// Basic route
+app.get('/', (req, res) => {
+    res.send('Hostel Management API is running');
+});
+
+// Define port
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
