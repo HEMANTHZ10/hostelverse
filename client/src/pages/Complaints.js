@@ -1,37 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertCircle, CheckCircle, Clock, Send, Search, Filter, ChevronRight } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 function Complaints() {
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [complaints, setComplaints] = useState([
-    {
-      id: 1,
-      category: 'Electrical',
-      description: 'Fan not working properly in my room',
-      status: 'pending',
-      date: '2024-03-10',
-      response: null
-    },
-    {
-      id: 2,
-      category: 'Plumbing',
-      description: 'Water leakage in bathroom sink',
-      status: 'in-progress',
-      date: '2024-03-09',
-      response: 'Plumber scheduled for tomorrow'
-    },
-    {
-      id: 3,
-      category: 'Furniture',
-      description: 'Broken chair needs replacement',
-      status: 'resolved',
-      date: '2024-03-08',
-      response: 'Chair has been replaced'
-    }
-  ]);
+  const [complaints, setComplaints] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { user } = useAuth();
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -59,28 +38,76 @@ function Complaints() {
     }
   };
 
-  const handleSubmit = (e) => {
+  // Fetch complaints on component mount
+  useEffect(() => {
+    if (user && user._id) {
+      console.log('Current user:', user); // Debug log
+      fetchComplaints();
+    }
+  }, [user]);
+
+  const fetchComplaints = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`http://localhost:5001/api/complaints/student/${user._id}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch complaints');
+      }
+
+      setComplaints(data);
+    } catch (error) {
+      setError(error.message);
+      console.error('Error fetching complaints:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     
-    // Create new complaint object
-    const newComplaint = {
-      id: Date.now(), // Using timestamp as temporary ID
-      category,
-      description,
-      status: 'pending',
-      date: new Date().toISOString().split('T')[0],
-      response: null
-    };
+    try {
+      if (!user || !user._id) {
+        throw new Error('Please log in to submit a complaint');
+      }
 
-    // Add new complaint to the list
-    setComplaints(prevComplaints => [newComplaint, ...prevComplaints]);
+      console.log('Submitting complaint with user:', user); // Debug log
+      // Only send essential data, server will fetch the rest from user profile
+      const response = await fetch('http://localhost:5001/api/complaints', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: category,
+          description,
+          studentId: user._id,
+          priority: 'medium'
+        })
+      });
 
-    // Reset form
-    setCategory('');
-    setDescription('');
+      const data = await response.json();
 
-    // Show success message (you can add a toast notification here)
-    alert('Complaint submitted successfully!');
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to submit complaint');
+      }
+
+      // Add new complaint to the list
+      setComplaints(prevComplaints => [data.complaint, ...prevComplaints]);
+
+      // Reset form
+      setCategory('');
+      setDescription('');
+
+      // Show success message
+      alert('Complaint submitted successfully!');
+    } catch (error) {
+      setError(error.message);
+      console.error('Error submitting complaint:', error);
+    }
   };
 
   const filteredComplaints = complaints

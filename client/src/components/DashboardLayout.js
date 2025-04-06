@@ -64,11 +64,11 @@ function DashboardLayout({ children }) {
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-semibold">
-                  {user?.name.charAt(0).toUpperCase()}
+                  {user?.fullName?.charAt(0).toUpperCase()}
                 </span>
               </div>
               <div>
-                <div className="font-semibold">{user?.name}</div>
+                <div className="font-semibold">{user?.fullName}</div>
                 <div className="text-sm text-gray-600 capitalize">{user?.role}</div>
               </div>
             </div>

@@ -26,19 +26,60 @@ export const SAMPLE_USERS = [
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Check if user data exists in localStorage
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    try {
+      // Check if user data exists in localStorage
+      const savedUser = localStorage.getItem('user');
+      if (!savedUser) return null;
+
+      const userData = JSON.parse(savedUser);
+      console.log('Loading saved user data:', { ...userData, password: '[REDACTED]' });
+
+      // Validate required fields
+      if (!userData.id || !userData.email || !userData.role) {
+        console.error('Invalid user data in localStorage:', userData);
+        localStorage.removeItem('user');
+        return null;
+      }
+
+      // Normalize role
+      userData.role = userData.role.toLowerCase();
+
+      // Validate role
+      if (!['student', 'warden', 'watchman'].includes(userData.role)) {
+        console.error('Invalid role in stored user data:', userData.role);
+        localStorage.removeItem('user');
+        return null;
+      }
+
+      return userData;
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      localStorage.removeItem('user');
+      return null;
+    }
   });
 
   const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+    if (!userData || !userData.role) {
+      console.error('Invalid user data in login:', userData);
+      return;
+    }
+
+    // Normalize role
+    const normalizedData = {
+      ...userData,
+      role: userData.role.toLowerCase()
+    };
+
+    console.log('Setting user data in context:', normalizedData);
+    setUser(normalizedData);
+    localStorage.setItem('user', JSON.stringify(normalizedData));
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    console.log('User logged out');
   };
 
   return (

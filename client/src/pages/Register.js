@@ -21,7 +21,7 @@ function Register() {
     { value: 'watchman', label: 'Watchman' }
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
@@ -33,17 +33,54 @@ function Register() {
       return;
     }
 
-    // Simulate API call delay
-    setTimeout(() => {
-      // Here you would typically make an API call to register the user
-      // For now, we'll just simulate success and redirect to login
+    // Ensure role is set
+    if (!formData.role) {
+      setError('Please select a role');
+      setIsLoading(false);
+      return;
+    }
+
+    console.log('Submitting registration with data:', {
+      ...formData,
+      password: '[REDACTED]'
+    });
+
+    try {
+      const response = await fetch('http://localhost:5001/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role.toLowerCase() // Ensure role is lowercase
+        })
+      });
+
+      const data = await response.json();
+      console.log('Registration response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      // Verify role in response
+      if (data.user && data.user.role) {
+        console.log('Registered with role:', data.user.role);
+      }
+
       setIsLoading(false);
       navigate('/login', { 
         state: { 
           message: 'Registration successful! Please login with your credentials.' 
         }
       });
-    }, 1000);
+    } catch (error) {
+      setError(error.message);
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -50,21 +50,22 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 function App() {
   const { user } = useAuth();
+  console.log('Current user in App:', user); // Debug log
 
   // Redirect authenticated users from root to their dashboard
   const RootRedirect = () => {
+    console.log('RootRedirect - Current user:', user); // Debug log
     if (!user) return <LandingPage />;
     
-    switch(user.role) {
-      case 'student':
-        return <Navigate to="/student/dashboard" />;
-      case 'warden':
-        return <Navigate to="/warden/dashboard" />;
-      case 'watchman':
-        return <Navigate to="/watchman/dashboard" />;
-      default:
-        return <Navigate to="/login" />;
-    }
+    const dashboardRoutes = {
+      student: '/student/dashboard',
+      warden: '/warden/dashboard',
+      watchman: '/watchman/dashboard'
+    };
+
+    const route = dashboardRoutes[user.role] || '/login';
+    console.log('RootRedirect - Navigating to:', route); // Debug log
+    return <Navigate to={route} replace />;
   };
 
   return (
