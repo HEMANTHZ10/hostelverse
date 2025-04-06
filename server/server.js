@@ -4,6 +4,7 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 const Complaint = require('./models/Complaint');
+const Leave = require('./models/Leave');
 
 const app = express();
 
@@ -15,7 +16,6 @@ app.use(express.json());
 require('dotenv').config();
 
 // MongoDB Connection
-<<<<<<< HEAD
 const connectDB = async () => {
     try {
         console.log('Attempting to connect to MongoDB...');
@@ -51,17 +51,6 @@ connectDB().then(() => {
 }).catch(err => {
     console.error('Failed to start server:', err);
     process.exit(1);
-=======
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => {
-    console.log('MongoDB connected successfully');
-})
-.catch((err) => {
-    console.log('MongoDB connection error:', err.message);
->>>>>>> 91051d0967f16227f1a5c8a2084b4de3f4728deb
 });
 
 // Registration Route
@@ -356,19 +345,118 @@ app.delete('/api/complaints/:id', async (req, res) => {
         res.status(500).json({ message: 'Error deleting complaint', error: error.message });
     }
 });
-<<<<<<< HEAD
-=======
+
+// Leave Routes
+
+// Submit a new leave request
+app.post('/api/leaves', async (req, res) => {
+    try {
+        console.log('Received leave request:', req.body);
+        const { 
+            studentName, 
+            roomNumber, 
+            startDate, 
+            endDate, 
+            reason, 
+            parentName, 
+            parentContact 
+        } = req.body;
+
+        // Calculate duration
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+        const leaveData = {
+            studentName,
+            roomNumber,
+            startDate,
+            endDate,
+            duration,
+            reason,
+            parentName,
+            parentContact
+        };
+
+        const leave = new Leave(leaveData);
+        const savedLeave = await leave.save();
+
+        res.status(201).json({
+            message: 'Leave request submitted successfully',
+            leave: savedLeave
+        });
+    } catch (error) {
+        console.error('Error submitting leave request:', error);
+        res.status(500).json({ 
+            message: 'Error submitting leave request', 
+            error: error.message 
+        });
+    }
+});
+
+// Get all leave requests
+app.get('/api/leaves', async (req, res) => {
+    try {
+        const leaves = await Leave.find().sort({ submittedAt: -1 });
+        res.json(leaves);
+    } catch (error) {
+        console.error('Error fetching leaves:', error);
+        res.status(500).json({ 
+            message: 'Error fetching leaves', 
+            error: error.message 
+        });
+    }
+});
+
+// Get leave requests for a specific student
+app.get('/api/leaves/student/:studentName', async (req, res) => {
+    try {
+        const { studentName } = req.params;
+        const leaves = await Leave.find({ studentName }).sort({ submittedAt: -1 });
+        res.json(leaves);
+    } catch (error) {
+        console.error('Error fetching student leaves:', error);
+        res.status(500).json({ 
+            message: 'Error fetching student leaves', 
+            error: error.message 
+        });
+    }
+});
+
+// Update leave request status
+app.put('/api/leaves/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!['pending', 'approved', 'rejected'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
+
+        const updatedLeave = await Leave.findByIdAndUpdate(
+            id,
+            { status },
+            { new: true }
+        );
+
+        if (!updatedLeave) {
+            return res.status(404).json({ message: 'Leave request not found' });
+        }
+
+        res.json({
+            message: 'Leave request updated successfully',
+            leave: updatedLeave
+        });
+    } catch (error) {
+        console.error('Error updating leave request:', error);
+        res.status(500).json({ 
+            message: 'Error updating leave request', 
+            error: error.message 
+        });
+    }
+});
 
 // Basic route
 app.get('/', (req, res) => {
     res.send('Hostel Management API is running');
 });
-
-// Define port
-const PORT = process.env.PORT || 5001;
-
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
->>>>>>> 91051d0967f16227f1a5c8a2084b4de3f4728deb

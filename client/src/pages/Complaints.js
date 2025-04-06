@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertCircle, CheckCircle, Clock, Send, Search, Filter, ChevronRight } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 function Complaints() {
   const { user } = useAuth();
@@ -8,7 +9,6 @@ function Complaints() {
   const [studentId, setStudentId] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-<<<<<<< HEAD
   const [complaints, setComplaints] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -35,34 +35,6 @@ function Complaints() {
       setIsLoading(false);
     }
   };
-=======
-  const [complaints, setComplaints] = useState([
-    {
-      id: 1,
-      category: 'Electrical',
-      description: 'Fan not working properly in my room',
-      status: 'pending',
-      date: '2024-03-10',
-      response: null
-    },
-    {
-      id: 2,
-      category: 'Plumbing',
-      description: 'Water leakage in bathroom sink',
-      status: 'in-progress',
-      date: '2024-03-09',
-      response: 'Plumber scheduled for tomorrow'
-    },
-    {
-      id: 3,
-      category: 'Furniture',
-      description: 'Broken chair needs replacement',
-      status: 'resolved',
-      date: '2024-03-08',
-      response: 'Chair has been replaced'
-    }
-  ]);
->>>>>>> 91051d0967f16227f1a5c8a2084b4de3f4728deb
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -90,7 +62,6 @@ function Complaints() {
     }
   };
 
-<<<<<<< HEAD
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -144,30 +115,6 @@ function Complaints() {
     } finally {
       setIsLoading(false);
     }
-=======
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Create new complaint object
-    const newComplaint = {
-      id: Date.now(), // Using timestamp as temporary ID
-      category,
-      description,
-      status: 'pending',
-      date: new Date().toISOString().split('T')[0],
-      response: null
-    };
-
-    // Add new complaint to the list
-    setComplaints(prevComplaints => [newComplaint, ...prevComplaints]);
-
-    // Reset form
-    setCategory('');
-    setDescription('');
-
-    // Show success message (you can add a toast notification here)
-    alert('Complaint submitted successfully!');
->>>>>>> 91051d0967f16227f1a5c8a2084b4de3f4728deb
   };
 
   const filteredComplaints = complaints
