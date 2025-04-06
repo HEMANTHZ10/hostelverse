@@ -17,22 +17,40 @@ require('dotenv').config();
 // MongoDB Connection
 const connectDB = async () => {
     try {
+        console.log('Attempting to connect to MongoDB...');
+        console.log('MongoDB URI:', process.env.MONGODB_URI);
+        
         await mongoose.connect(process.env.MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
-        console.log('MongoDB Connected...');
+        console.log('MongoDB Connected Successfully!');
         
         // Create indexes
         await Complaint.createIndexes();
-        console.log('Complaint indexes created...');
+        console.log('Complaint indexes created successfully!');
     } catch (err) {
-        console.error('MongoDB connection error:', err.message);
+        console.error('MongoDB connection error:', err);
+        console.error('Full error details:', {
+            name: err.name,
+            message: err.message,
+            stack: err.stack
+        });
         process.exit(1);
     }
 };
 
-connectDB();
+// Make sure MongoDB is connected before starting the server
+connectDB().then(() => {
+    const PORT = process.env.PORT || 5001;
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+        console.log('Server is ready to accept complaints!');
+    });
+}).catch(err => {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+});
 
 // Registration Route
 app.post('/api/register', async (req, res) => {
@@ -167,147 +185,147 @@ app.post('/api/login', async (req, res) => {
 // Create a new complaint
 app.post('/api/complaints', async (req, res) => {
     try {
-        console.log('Received complaint request with body:', req.body);
+        console.log('\n=== New Complaint Submission ===');
+        console.log('1. Received request with body:', req.body);
 
         const { title, description, studentId } = req.body;
 
         // Validate required fields
         if (!title || !description || !studentId) {
-            console.log('Missing required fields');
+            console.log('2. Validation Error - Missing Fields:');
+            console.log('- title:', title);
+            console.log('- description:', description);
+            console.log('- studentId:', studentId);
             return res.status(400).json({ 
                 message: 'Title, description, and studentId are required'
             });
         }
 
-        // Find the student user
-        const student = await User.findById(studentId);
-        if (!student) {
-            console.log('Student not found:', studentId);
-            return res.status(404).json({ message: 'Student not found' });
-        }
-
-        console.log('Found student:', student);
+        console.log('2. All required fields present');
 
         // Create new complaint
-        const complaint = new Complaint({
+        const complaintData = {
             title,
             description,
-            studentName: student.fullName,
-            room: student.room || 'Not Specified',
-            priority: 'medium',
-            contactNo: student.contactNo || 'Not Specified',
-            email: student.email,
-            student: student._id,
+            studentId,
             status: 'pending',
-            date: new Date(),
-            wardenResponse: ''
-        });
+            date: new Date()
+        };
 
-        console.log('Created complaint object:', complaint);
+        console.log('3. Creating complaint with data:', complaintData);
 
         try {
-            const savedComplaint = await complaint.save();
-            console.log('Saved complaint:', savedComplaint);
+            // Check MongoDB connection
+            if (mongoose.connection.readyState !== 1) {
+                throw new Error('MongoDB not connected. Current state: ' + mongoose.connection.readyState);
+            }
 
-            res.status(201).json({
+            const complaint = new Complaint(complaintData);
+            console.log('4. Created complaint model instance');
+
+            const savedComplaint = await complaint.save();
+            console.log('5. Successfully saved complaint:', savedComplaint);
+
+            return res.status(201).json({
                 message: 'Complaint submitted successfully',
                 complaint: savedComplaint
             });
-        } catch (saveError) {
-            console.error('Error saving complaint:', saveError);
-            throw saveError;
+        } catch (dbError) {
+            console.error('Database Error:', {
+                name: dbError.name,
+                message: dbError.message,
+                stack: dbError.stack
+            });
+            return res.status(500).json({
+                message: 'Database error while saving complaint',
+                error: dbError.message
+            });
         }
     } catch (error) {
-        console.error('Error creating complaint:', error);
-        res.status(500).json({ message: 'Error submitting complaint', error: error.message });
+        console.error('Server Error:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
+        return res.status(500).json({
+            message: 'Server error while processing complaint',
+            error: error.message
+        });
     }
 });
 
-// Get all complaints (for warden)
+// Get all complaints
 app.get('/api/complaints', async (req, res) => {
     try {
-        const { status, priority, search } = req.query;
-        let query = {};
-
-        // Filter by status if provided
-        if (status && status !== 'all') {
-            query.status = status;
-        }
-
-        // Filter by priority if provided
-        if (priority && priority !== 'all') {
-            query.priority = priority;
-        }
-
-        // Search in title, description, or student name
-        if (search) {
-            query.$or = [
-                { title: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } },
-                { studentName: { $regex: search, $options: 'i' } },
-                { room: { $regex: search, $options: 'i' } }
-            ];
-        }
-
-        const complaints = await Complaint.find(query)
-            .sort({ date: -1 })
-            .populate('student', 'fullName email');
-
-        res.json(complaints);
+        const complaints = await Complaint.find()
+            .sort({ date: -1 }); // Sort by date, newest first
+        
+        res.status(200).json(complaints);
     } catch (error) {
         console.error('Error fetching complaints:', error);
         res.status(500).json({ message: 'Error fetching complaints', error: error.message });
     }
 });
 
-// Get complaints by student ID
+// Get complaints for a specific student
 app.get('/api/complaints/student/:studentId', async (req, res) => {
     try {
-        console.log('Fetching complaints for student:', req.params.studentId);
-        
-        const complaints = await Complaint.find({ student: req.params.studentId })
-            .sort({ date: -1 });
-            
-        console.log('Found complaints:', complaints.length);
+        const { studentId } = req.params;
+        console.log('Fetching complaints for student:', studentId);
 
+        const complaints = await Complaint.find({ studentId })
+            .sort({ date: -1 });
+
+        console.log(`Found ${complaints.length} complaints`);
         res.json(complaints);
     } catch (error) {
-        console.error('Error fetching student complaints:', error);
-        res.status(500).json({ message: 'Error fetching complaints', error: error.message });
+        console.error('Error fetching complaints:', error);
+        res.status(500).json({
+            message: 'Error fetching complaints',
+            error: error.message
+        });
     }
 });
 
 // Update complaint status
 app.put('/api/complaints/:id', async (req, res) => {
     try {
-        const { status, wardenResponse } = req.body;
+        const { id } = req.params;
+        const { status } = req.body;
+
+        console.log('Updating complaint:', { id, status });
 
         // Validate status
-        if (!['pending', 'in-progress', 'resolved'].includes(status)) {
+        const validStatuses = ['pending', 'in-progress', 'resolved'];
+        if (status && !validStatuses.includes(status)) {
             return res.status(400).json({ message: 'Invalid status' });
         }
 
-        const complaint = await Complaint.findByIdAndUpdate(
-            req.params.id,
-            { 
-                status,
-                wardenResponse,
-                lastUpdated: new Date()
-            },
+        const updatedComplaint = await Complaint.findByIdAndUpdate(
+            id,
+            { $set: { status } },
             { new: true }
         );
 
-        if (!complaint) {
+        if (!updatedComplaint) {
             return res.status(404).json({ message: 'Complaint not found' });
         }
 
-        res.json({
+        console.log('Successfully updated complaint:', updatedComplaint);
+        res.status(200).json({
             message: 'Complaint updated successfully',
-            complaint
+            complaint: updatedComplaint
         });
     } catch (error) {
-        console.error('Error updating complaint:', error);
-        res.status(500).json({ message: 'Error updating complaint', error: error.message });
+        console.error('Error updating complaint:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
+        res.status(500).json({ 
+            message: 'Error updating complaint', 
+            error: error.message 
+        });
     }
 });
 
@@ -326,6 +344,3 @@ app.delete('/api/complaints/:id', async (req, res) => {
         res.status(500).json({ message: 'Error deleting complaint', error: error.message });
     }
 });
-
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
